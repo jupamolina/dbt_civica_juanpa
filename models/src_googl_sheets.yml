@@ -1,0 +1,18 @@
+version: 2
+sources:
+  - name: google_sheets # Nombre del source, que equivale al nombre del schema donde están los datos de origen
+   
+    schema: GOOGLE_SHEETS # Schema donde están los datos de origen
+    database: FIVETRAN_JPMOLINA #Nombre de la base de datos
+    freshness:
+        warn_after: {count: 24, period: hour}
+        error_after: {count: 48, period: hour}
+    tables:
+      - name: budget
+        loaded_at_field: _fivetran_synced
+        columns:
+          - name: _row
+          - name: quantity
+          - name: product_id
+          - name: month
+          - name: _fivetran_synced
