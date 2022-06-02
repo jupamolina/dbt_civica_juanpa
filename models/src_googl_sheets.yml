@@ -12,7 +12,11 @@ sources:
         loaded_at_field: _fivetran_synced
         columns:
           - name: _row
-          - name: quantity
+            tests:
+              - unique
+              - not_null
+              - positive_values
           - name: product_id
+          - name: quantity
           - name: month
           - name: _fivetran_synced
