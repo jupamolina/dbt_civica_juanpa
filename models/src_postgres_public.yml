@@ -1,0 +1,133 @@
+version: 2
+
+sources:
+
+  - name: postgres_public # name of the source 
+    description: >
+      Raw data demo from PostgreSQL Database.
+    schema: postgres_public # this is the schema our raw data lives in
+    database: fivetran_jpmolina # this is the name of our database
+
+    quoting:
+      database: false
+      schema: false
+      identifier: false
+
+    freshness:
+      warn_after: {count: 24, period: hour}
+      error_after: {count: 48, period: hour}
+
+    tables:
+
+      - name: addresses
+        loaded_at_field: _fivetran_synced
+        description: >
+          Info about addresses for users and delivery orders.
+        columns:
+          - name: address_id
+            description: >
+              UUID for each unique address on platform.
+            tests:
+              - not_null
+              - unique
+          - name: address
+            description: >
+              The first few lines of the address.
+            tests:
+              - not_null
+          - name: zipcode
+            description: >
+              The zipcode of the address.
+            tests:
+              - not_null
+          - name: state
+            description: >
+              State this delivery address is based in.
+            tests:
+              - not_null
+          - name: country
+            description: >
+              Country this delivery address is based in.
+            tests:
+              - not_null
+          - name: _fivetran_synced
+            description: >
+              Date that the data was loaded.
+            tests:
+              - not_null
+
+  
+      - name: orders
+        loaded_at_field: _fivetran_synced
+        description: >
+          Data about all orders in demo.
+        columns:
+          - name: order_id
+            description: >
+              UUID for each unique order on platform.
+            tests:
+              - not_null
+              - unique
+          - name: user_id
+            description: >
+              UserId of the user that placed this order.
+            tests:
+              - not_null
+          - name: promo_id
+            description: >
+              PromoId if any was used in the order.
+          - name: address_id
+            description: >
+              Delivery address for this order.
+            tests:
+              - not_null
+              - relationships:
+                 to: ref('stg_postgres_public_addresses')
+                 field: address_id  
+          - name: created_at
+            description: >
+              Timestamp when the order was created (UTC).
+            tests:
+              - not_null
+          - name: order_cost
+            description: >
+              Dollar about of the items in the order ($).
+            tests:
+              - not_null
+              - positive_values
+          - name: shipping_cost
+            description: >
+              Cost of shipping for the order ($).
+            tests:
+              - not_null
+              - positive_values  
+          - name: order_total
+            description: >
+              Total cost of the order including shipping ($).
+            tests:
+              - not_null
+              - positive_values
+          - name: tracking_id
+            description: >
+              Tracking number for the order/package.
+          - name: shipping_service
+            description: >
+              Company that was used for shipping.
+          - name: estimated_delivery_at
+            description: >
+              Estimated date of delivery (UTC).
+          - name: delivered_at
+            description: >
+              Actual timestamp of delivery (UTC).
+          - name: status
+            description: >
+              Status of the order.
+            tests:
+              - not_null
+              - accepted_values:
+                    values: ['shipped','preparing','delivered']
+          - name: _fivetran_synced
+            description: >
+              Date that the data was loaded.
+            tests:
+              - not_null

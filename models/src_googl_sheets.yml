@@ -15,8 +15,17 @@ sources:
             tests:
               - unique
               - not_null
-              - positive_values
           - name: product_id
+            tests:
+              - unique
+              - relationships:
+                  to: source('postgres_public','products')
+                  field: id
           - name: quantity
+            tests:
+              - positive_values
           - name: month
+            tests:
+              - accepted_values:
+                  values: ['january', 'february'] #Ejemplo, no es válido
           - name: _fivetran_synced
